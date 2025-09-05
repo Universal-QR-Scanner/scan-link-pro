@@ -56,7 +56,7 @@ export interface QRCodeData {
 
 export interface ScanResult {
   success: boolean;
-  data?: QRCodeData;
+  data?: string;
   error?: string;
   timestamp: string;
 }

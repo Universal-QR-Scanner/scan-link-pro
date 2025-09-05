@@ -13,13 +13,13 @@ export const QRScanner = () => {
   const { exhibitorId } = useParams<{ exhibitorId: string }>();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [exhibitor, setExhibitor] = useState<Exhibitor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastScan, setLastScan] = useState<ScanResult | null>(null);
   const [scanCount, setScanCount] = useState(0);
-  
+
   const { toast } = useToast();
 
   const { videoRef, canvasRef, isScanning, startScanning, stopScanning, hasPermission } = useQRScanner({
@@ -42,7 +42,7 @@ export const QRScanner = () => {
     try {
       setLoading(true);
       const exhibitorData = await api.exhibitors.getByToken(token);
-      
+
       if (!exhibitorData || exhibitorData.id !== exhibitorId) {
         setError('Invalid or expired scanner link');
         return;
@@ -65,19 +65,22 @@ export const QRScanner = () => {
   async function handleScan(result: ScanResult) {
     setLastScan(result);
 
+
     if (result.success && result.data && exhibitor) {
       try {
-        await api.scans.recordScan(exhibitor.id, result.data);
+        // await api.scans.recordScan(exhibitor.id, result.data);
         setScanCount(prev => prev + 1);
-        
+
         toast({
           title: "Scan Successful!",
           description: `Captured data for ${result.data.name}`,
         });
       } catch (error) {
+        let h = JSON.stringify(result, null, 2)
+        console.log(h);
         toast({
           title: "Error",
-          description: "Failed to save scan data",
+          description: `Failed to save scan data ${h}`,
           variant: "destructive"
         });
       }
@@ -165,7 +168,7 @@ export const QRScanner = () => {
                   ref={canvasRef}
                   className="hidden"
                 />
-                
+
                 {/* Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="border-2 border-white border-dashed rounded-lg w-64 h-64 flex items-center justify-center">
@@ -234,30 +237,30 @@ export const QRScanner = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{lastScan.data.name}</span>
+                      <span className="font-medium">{lastScan.data}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm">{lastScan.data.email}</span>
-                    </div>
-                    {lastScan.data.company && (
+                    </div> */}
+                    {/* {lastScan.data.company && (
                       <div className="flex items-center gap-2">
                         <Building className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{lastScan.data.company}</span>
                       </div>
-                    )}
-                    {lastScan.data.phoneNumber && (
+                    )} */}
+                    {/* {lastScan.data.phoneNumber && (
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{lastScan.data.phoneNumber}</span>
                       </div>
-                    )}
+                    )} */}
                   </div>
-                  {lastScan.data.jobTitle && (
+                  {/* {lastScan.data.jobTitle && (
                     <div className="pt-2 border-t">
                       <Badge variant="outline">{lastScan.data.jobTitle}</Badge>
                     </div>
-                  )}
+                  )} */}
                 </div>
               ) : (
                 <div className="text-center py-4">

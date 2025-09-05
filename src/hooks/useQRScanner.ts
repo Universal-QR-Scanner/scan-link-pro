@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import jsQR from 'jsqr';
 import { QRCodeData, ScanResult } from '@/types/exhibition';
+import { json } from 'stream/consumers';
 
 interface UseQRScannerOptions {
   onScan?: (result: ScanResult) => void;
@@ -20,54 +21,56 @@ export const useQRScanner = (options: UseQRScannerOptions = {}) => {
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-  const parseQRData = useCallback((data: string): QRCodeData | null => {
+  const parseQRData = useCallback((data: string): string | null => {
     try {
       // Try to parse as JSON first
-      const jsonData = JSON.parse(data);
+      console.log("This is data:",data);
+    return data;
+    //   const jsonData = JSON.parse(data);
       
-      // Validate required fields
-      if (jsonData.customerId && jsonData.name && jsonData.email) {
-        return {
-          customerId: jsonData.customerId || jsonData.id,
-          name: jsonData.name,
-          email: jsonData.email,
-          phoneNumber: jsonData.phoneNumber || jsonData.phone,
-          company: jsonData.company,
-          jobTitle: jsonData.jobTitle || jsonData.position
-        };
-      }
+    //   // Validate required fields
+    //   if (jsonData.customerId && jsonData.name && jsonData.email) {
+    //     return {
+    //       customerId: jsonData.customerId || jsonData.id,
+    //       name: jsonData.name,
+    //       email: jsonData.email,
+    //       phoneNumber: jsonData.phoneNumber || jsonData.phone,
+    //       company: jsonData.company,
+    //       jobTitle: jsonData.jobTitle || jsonData.position
+    //     };
+    //   }
       
-      return null;
+    //   return jsonData;
     } catch {
-      // If not JSON, try to parse as simple key-value pairs
-      const lines = data.split('\n').filter(line => line.trim());
-      const result: any = {};
+    //   // If not JSON, try to parse as simple key-value pairs
+    //   const lines = data.split('\n').filter(line => line.trim());
+    //   const result: any = {};
       
-      for (const line of lines) {
-        const [key, value] = line.split(':').map(s => s.trim());
-        if (key && value) {
-          result[key.toLowerCase()] = value;
-        }
-      }
+    //   for (const line of lines) {
+    //     const [key, value] = line.split(':').map(s => s.trim());
+    //     if (key && value) {
+    //       result[key.toLowerCase()] = value;
+    //     }
+    //   }
       
-      // Map common field variations
-      const customerId = result.customerid || result.id || result.customerId;
-      const name = result.name || result.fullname;
-      const email = result.email;
+    //   // Map common field variations
+    //   const customerId = result.customerid || result.id || result.customerId;
+    //   const name = result.name || result.fullname;
+    //   const email = result.email;
       
-      if (customerId && name && email) {
-        return {
-          customerId,
-          name,
-          email,
-          phoneNumber: result.phone || result.phonenumber,
-          company: result.company || result.organization,
-          jobTitle: result.position || result.jobtitle || result.title
-        };
-      }
+    //   if (customerId && name && email) {
+    //     return {
+    //       customerId,
+    //       name,
+    //       email,
+    //       phoneNumber: result.phone || result.phonenumber,
+    //       company: result.company || result.organization,
+    //       jobTitle: result.position || result.jobtitle || result.title
+    //     };
+    //   }
       
       return null;
-    }
+    };
   }, []);
 
   const scan = useCallback(() => {
@@ -89,7 +92,8 @@ export const useQRScanner = (options: UseQRScannerOptions = {}) => {
       const code = jsQR(imageData.data, imageData.width, imageData.height);
       
       if (code) {
-        const qrData = parseQRData(code.data);
+        const qrData = code.data;
+        console.log(JSON.stringify(qrData));
         const result: ScanResult = {
           success: !!qrData,
           data: qrData || undefined,
