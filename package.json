@@ -6,7 +6,7 @@
   "homepage": "https://universal-qr-scanner.github.io/scan-link-pro",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && copy dist\\index.html dist\\404.html",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
