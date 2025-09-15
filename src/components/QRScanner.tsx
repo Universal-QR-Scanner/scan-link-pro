@@ -73,7 +73,7 @@ export const QRScanner = () => {
 
         toast({
           title: "Scan Successful!",
-          description: `Captured data for ${result.data.name}`,
+          description: `Captured data for ${result.data}`,
         });
       } catch (error) {
         let h = JSON.stringify(result, null, 2)
