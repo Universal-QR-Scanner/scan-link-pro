@@ -32,6 +32,13 @@ export const QRScanner = () => {
     validateExhibitor();
   }, [exhibitorId, token]);
 
+  // Auto-start scanning when exhibitor is validated
+  useEffect(() => {
+    if (exhibitor && !isScanning && hasPermission !== false) {
+      startScanning();
+    }
+  }, [exhibitor]);
+
   const validateExhibitor = async () => {
     if (!exhibitorId || !token) {
       setError('Invalid scanner URL');
@@ -194,29 +201,6 @@ export const QRScanner = () => {
                 </div>
               </div>
 
-              {/* Controls */}
-              <div className="flex justify-center gap-4">
-                {!isScanning ? (
-                  <Button
-                    variant="scanner"
-                    size="lg"
-                    onClick={startScanning}
-                    disabled={hasPermission === false}
-                  >
-                    <Camera className="mr-2 h-5 w-5" />
-                    Start Scanner
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={stopScanning}
-                  >
-                    Stop Scanner
-                  </Button>
-                )}
-              </div>
-
               {hasPermission === false && (
                 <div className="text-center p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
                   <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
@@ -286,28 +270,6 @@ export const QRScanner = () => {
           </Card>
         )}
 
-        {/* Instructions */}
-        <Card className="shadow-card bg-gradient-card">
-          <CardHeader>
-            <CardTitle className="text-lg">How to Use</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-start gap-2">
-                <div className="bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">1</div>
-                <p>Click "Start Scanner" to activate your camera</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">2</div>
-                <p>Point your camera at a customer's QR code badge</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">3</div>
-                <p>The scanner will automatically capture and save customer information</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
