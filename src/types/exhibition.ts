@@ -11,7 +11,7 @@ export interface Exhibition {
 }
 
 export interface Exhibitor {
-  id: string;
+  // id: string;        //generated at the backend
   exhibitionId: string;
   name: string;
   company: string;

@@ -41,7 +41,21 @@ export const QRScanner = () => {
 
     try {
       setLoading(true);
-      const exhibitorData = await api.exhibitors.getByToken(token);
+      const exhibitorData = {
+        id:"1761558187933-1zgal4fxg",
+        name:"test",
+        company:"test",
+        email:"test",
+        phoneNumber:"test",
+        isActive:true,
+        exhibitionId: "test",
+        secureToken: "test",
+        scannerUrl: "test",
+        createdAt: "test",
+        updatedAt: "test"
+      }
+      // const exhibitorData = await api.exhibitors.getByToken(token);
+      console.log(exhibitorData);
 
       if (!exhibitorData || exhibitorData.id !== exhibitorId) {
         setError('Invalid or expired scanner link');

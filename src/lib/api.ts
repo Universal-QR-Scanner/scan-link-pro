@@ -27,7 +27,7 @@ let exhibitors: Exhibitor[] = [
     email: 'john@acme.com',
     phoneNumber: '+1-555-0123',
     secureToken: 'secure-token-abc123',
-    scannerUrl: `${window.location.origin}/scanner/exhibitor-1?token=secure-token-abc123`,
+    scannerUrl: `${window.location.origin}/scan-link-pro/scanner/exhibitor-1?token=secure-token-abc123`,
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()

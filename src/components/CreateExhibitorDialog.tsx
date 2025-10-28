@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, Building, Mail, Phone } from 'lucide-react';
+import { Users, Building, Mail, Phone, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,8 @@ export const CreateExhibitorDialog = ({ open, onOpenChange, onSubmit, exhibition
     company: '',
     email: '',
     phoneNumber: '',
+    startDate: '',
+    endDate: '',
     isActive: true
   });
 
@@ -45,6 +47,8 @@ export const CreateExhibitorDialog = ({ open, onOpenChange, onSubmit, exhibition
         company: '',
         email: '',
         phoneNumber: '',
+        startDate: '',
+        endDate: '',
         isActive: true
       });
     } finally {
@@ -127,6 +131,40 @@ export const CreateExhibitorDialog = ({ open, onOpenChange, onSubmit, exhibition
                 onChange={(e) => updateField('phoneNumber', e.target.value)}
                 className="pl-10"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Start Date */}
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Start Date</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="startDate"
+                  type="date"
+                  placeholder="e.g., 01-01-2025"
+                  value={formData.startDate}
+                  onChange={(e) => updateField('startDate', e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {/* End Date */}
+            <div className="space-y-2">
+              <Label htmlFor="endDate">End Date</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="endDate"
+                  type="date"
+                  placeholder="e.g., 01-01-2025"
+                  value={formData.endDate}
+                  onChange={(e) => updateField('endDate', e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
           </div>
 
