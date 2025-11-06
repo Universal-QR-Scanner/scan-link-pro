@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Copy, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Search, Copy, CheckCircle, XCircle, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Exhibition, Exhibitor } from '@/types/exhibition';
 import { api } from '@/lib/api';
 import { format } from 'date-fns';
+import { CreateExhibitorDialog } from '@/components/CreateExhibitorDialog';
 
 interface ExhibitorWithExhibition extends Exhibitor {
   exhibitionName: string;
@@ -20,7 +21,10 @@ export const AdminDashboard = () => {
   const [exhibitors, setExhibitors] = useState<ExhibitorWithExhibition[]>([]);
   const [filteredExhibitors, setFilteredExhibitors] = useState<ExhibitorWithExhibition[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [startDateFilter, setStartDateFilter] = useState('');
+  const [endDateFilter, setEndDateFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -29,7 +33,7 @@ export const AdminDashboard = () => {
 
   useEffect(() => {
     filterExhibitors();
-  }, [searchQuery, exhibitors]);
+  }, [searchQuery, startDateFilter, endDateFilter, exhibitors]);
 
   const loadExhibitors = async () => {
     try {
@@ -63,22 +67,54 @@ export const AdminDashboard = () => {
   };
 
   const filterExhibitors = () => {
-    if (!searchQuery.trim()) {
-      setFilteredExhibitors(exhibitors);
-      return;
+    let filtered = [...exhibitors];
+
+    // Text search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(exhibitor => 
+        exhibitor.name.toLowerCase().includes(query) ||
+        exhibitor.company.toLowerCase().includes(query) ||
+        exhibitor.email.toLowerCase().includes(query) ||
+        exhibitor.exhibitionName.toLowerCase().includes(query) ||
+        (exhibitor.phoneNumber?.toLowerCase() || '').includes(query) ||
+        (exhibitor.isActive ? 'active' : 'inactive').includes(query)
+      );
     }
 
-    const query = searchQuery.toLowerCase();
-    const filtered = exhibitors.filter(exhibitor => 
-      exhibitor.name.toLowerCase().includes(query) ||
-      exhibitor.company.toLowerCase().includes(query) ||
-      exhibitor.email.toLowerCase().includes(query) ||
-      exhibitor.exhibitionName.toLowerCase().includes(query) ||
-      (exhibitor.phoneNumber?.toLowerCase() || '').includes(query) ||
-      (exhibitor.isActive ? 'active' : 'inactive').includes(query)
-    );
+    // Start date filter
+    if (startDateFilter) {
+      filtered = filtered.filter(exhibitor => 
+        new Date(exhibitor.startDate) >= new Date(startDateFilter)
+      );
+    }
+
+    // End date filter
+    if (endDateFilter) {
+      filtered = filtered.filter(exhibitor => 
+        new Date(exhibitor.endDate) <= new Date(endDateFilter)
+      );
+    }
     
     setFilteredExhibitors(filtered);
+  };
+
+  const handleCreateExhibitor = async (data: Omit<Exhibitor, 'id' | 'secureToken' | 'scannerUrl' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      await api.exhibitors.create(data);
+      await loadExhibitors();
+      setIsDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Exhibitor created successfully"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create exhibitor",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleToggleStatus = async (exhibitorId: string, currentStatus: boolean) => {
@@ -146,12 +182,7 @@ export const AdminDashboard = () => {
             </div>
             <Button
               size="lg"
-              onClick={() => {
-                toast({
-                  title: "Coming Soon",
-                  description: "Add exhibitor functionality will be available soon"
-                });
-              }}
+              onClick={() => setIsDialogOpen(true)}
             >
               <Plus className="mr-2 h-5 w-5" />
               Add Exhibitor
@@ -162,7 +193,7 @@ export const AdminDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Search/Filter Bar */}
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -172,6 +203,30 @@ export const AdminDashboard = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-6 text-base"
             />
+          </div>
+          
+          {/* Date Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative">
+              <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="date"
+                placeholder="Start Date From"
+                value={startDateFilter}
+                onChange={(e) => setStartDateFilter(e.target.value)}
+                className="pl-10 pr-4 py-6 text-base"
+              />
+            </div>
+            <div className="relative">
+              <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="date"
+                placeholder="End Date Until"
+                value={endDateFilter}
+                onChange={(e) => setEndDateFilter(e.target.value)}
+                className="pl-10 pr-4 py-6 text-base"
+              />
+            </div>
           </div>
         </div>
 
@@ -285,6 +340,14 @@ export const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Create Exhibitor Dialog */}
+      <CreateExhibitorDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSubmit={handleCreateExhibitor}
+        exhibitionId="expo-1"
+      />
     </div>
   );
 };
